@@ -1,5 +1,21 @@
 ------------------------------------------------------le 03/10/2026-------------------------------------------------------------
 - retenir la licence : Software Package Data Exchange License Identifier: MIT
+*MIT	Anyone can use, copy, modify and sell it, as long as they keep your copyright notice. The most common choice.
+*UNLICENSED	No permission given: all rights reserved. Others may read the code but not reuse it.
+*Unlicense	The opposite: public domain, anyone can do anything, no conditions.
+*GPL-3.0	Free to use and modify, but any project that includes it must also publish its code under GPL.
+*AGPL-3.0	Same as GPL, and it also applies when the code runs as an online service.
+*BUSL-1.1	Source is visible, but commercial use is forbidden for a few years, then it becomes open. Uniswap v3 used it to stop competitors copying it at launch.
+
+-function return type and so one 
+function name(parameters) visibility mutability returns (types) { }
+Mutability is the optional word in the middle:
+nothing → the function can change state (like increment)
+view → reads state, changes nothing
+pure → neither reads nor changes state
+payable → can receive ETH
+
+
 - choice of solidity version : 
     Recent → bug fixes, cheaper gas
     Not brand new → compiler bugs already found
@@ -20,6 +36,8 @@
 1-interract with a contract
    call = read, send = write (needs --account)
    Pattern is always: cast <verb> <address> "<signature>" <args>
+   example : cast call <ADDRESS> "number()(uint8)" --rpc-url http://127.0.0.1:8545
+
 2-accessibility
     public → everyone (outside + inside)
     external → outside only (functions only)
@@ -31,8 +49,10 @@
     Function → 4 options, visibility mandatory
     Variable → 3 options (no external), default internal
     public variable → auto getter number()
+
 3-overflow
     depends on the compiler 
+    
 4-Test 
  what to test :
     Each function → the normal case
