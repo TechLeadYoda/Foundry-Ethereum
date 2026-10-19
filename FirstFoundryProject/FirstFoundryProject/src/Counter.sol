@@ -2,38 +2,49 @@
 pragma solidity 0.8.37;
 
 contract Counter {
-    // ---- custom error: who tried to call without permission ----
-    error NotOwner(address caller);
+    uint256 public number;      // public : lisible par tous
+    address private owner;      // private : seulement ce contrat
 
-    // ---- event: tells the outside world the value changed ----
-    event NumberChanged(uint256 oldValue, uint256 newValue);
+    // Erreurs personnalisées
+    error TooLarge(uint256 value);
+    error NotOwner();
 
-    // ---- state ----
-    address public owner;
-    uint256 public number;
+    // Events
+    event Incremented(uint256 newValue);
+    event Reset(address by);
 
-    // ---- modifier: reusable "only the owner" check ----
+    // Modifier
     modifier onlyOwner() {
-        if (msg.sender != owner) revert NotOwner(msg.sender);
+        if (msg.sender != owner) revert NotOwner();
         _;
     }
 
-    // runs once, at deployment: the deployer becomes the owner
     constructor() {
         owner = msg.sender;
+        number = 255;
     }
 
-    function setNumber(uint256 newNumber) public onlyOwner {
-        require(newNumber <= 1000, "Too big");
-
-        uint256 oldValue = number;
-        number = newNumber;
-
-        emit NumberChanged(oldValue, newNumber);
-    }
-
-    // open to everyone
-    function increment() public {
+    // external : appelée seulement de l'extérieur
+    function increment() external {
+        if (!_canIncrement()) revert TooLarge(number);
         number++;
+        emit Incremented(number);
+    }
+
+    // Seul l'owner peut remettre à zéro
+    function reset_counter() external onlyOwner {
+        number = 0;
+        emit Reset(msg.sender);
+    }
+
+    // On garde un require ici pour comparer
+    function decrement_counter() public {
+        require(number > 0, "too small");
+        number--;
+    }
+
+    // internal : utilisable seulement dans le contrat
+    function _canIncrement() internal view returns (bool) {
+        return number < 255;
     }
 }

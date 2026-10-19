@@ -32,6 +32,25 @@ payable → can receive ETH
     --rpc-url http://127.0.0.1:8545 \
     --account testKey \
     --broadcast
+- retenir command :
+    cast   wallet   import   key4   --interactive
+    outil  groupe   action   nom    comment
+
+    forge create → déployer un contrat
+    QUOI ? src/Counter.sol:Counter → le fichier, deux-points, le nom du contrat
+    OÙ ? --rpc-url http://127.0.0.1:8545 → sur quelle blockchain (anvil, port 8545)
+    QUI ? --account key4 → qui signe et paie
+    POUR DE VRAI ? --broadcast → envoyer vraiment ; sans lui, c’est une simulation
+
+    La loi : OUTIL → ACTION → QUOI → OÙ → QUI
+
+    Toutes les commandes Foundry se construisent dans cet ordre :
+
+        OUTIL	ACTION	QUOI	OÙ	QUI
+    Ajouter une clé	cast	wallet import	key4	—	--interactive
+    Déployer	forge	create	src/Counter.sol:Counter	--rpc-url ...	--account key4
+    Écrire	cast	send	<ADRESSE> "increment()"	--rpc-url ...	--account key4
+    Lire	cast	call	<ADRESSE> "number()(uint256)"	--rpc-url ...	
 ------------------------------------------------------le 04/10/2026-------------------------------------------------------------
 1-interract with a contract
    call = read, send = write (needs --account)
@@ -60,4 +79,8 @@ payable → can receive ETH
     Each way it should fail → check that it reverts
     Initial state → values right after deployment
 ? use of strings?
+----------------------------------------------------le 17/10/2026-------------------------------------------------------------------
+
+1- The address of a contract comes from who deploys and their transaction count, not from the code, 
+so restarting anvil (count back to 0) gives the same address again.
 
