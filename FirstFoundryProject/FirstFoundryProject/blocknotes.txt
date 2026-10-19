@@ -83,4 +83,42 @@ payable → can receive ETH
 
 1- The address of a contract comes from who deploys and their transaction count, not from the code, 
 so restarting anvil (count back to 0) gives the same address again.
+----------------------------------------------------le 19/10/2026-------------------------------------------------------------------
+    1. require
 
+    require(condition, "message");
+    Si la condition est fausse : tout est annulé, le gas restant est rendu
+    Sert à vérifier les entrées et les conditions avant d’agir
+
+    2. Erreurs personnalisées
+
+    Déclaration : error MonErreur(); ou error MonErreur(uint256 valeur);
+    Utilisation : if (!condition) revert MonErreur(valeur);
+    Avantages : moins de gas qu’un texte, peuvent transporter des valeurs
+
+    3. Events
+
+    Déclaration : event MonEvent(address indexed user, uint256 montant);
+    Utilisation : emit MonEvent(msg.sender, montant);
+    Servent à informer l’extérieur (front-end, indexeurs) ; le contrat ne peut pas les relire
+    indexed : permet de filtrer la recherche (3 maximum)
+
+    4. Modifiers
+
+    Vérification réutilisable ajoutée à une fonction
+    modifier monModifier() { /* vérif */ _; }
+    _; = endroit où le code de la fonction s’exécute
+    Usage classique : contrôle d’accès (onlyOwner), pause (whenNotPaused)
+
+    5. vm.expectRevert (Foundry)
+
+    Placé juste avant l’appel qui doit échouer
+    Message texte : vm.expectRevert(bytes("message"));
+    Erreur sans valeur : vm.expectRevert(Contrat.MonErreur.selector);
+    Erreur avec valeurs : vm.expectRevert(abi.encodeWithSelector(Contrat.MonErreur.selector, valeur));
+    Sans argument : accepte n’importe quel échec (moins précis)
+    Avec vm.prank : prank d’abord, puis expectRevert, puis l’appel
+
+    6. Tester un event
+
+    vm.expectEmit(...), puis emit de l’event attendu, puis l’appel réel
