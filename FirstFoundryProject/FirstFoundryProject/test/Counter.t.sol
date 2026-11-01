@@ -1,50 +1,52 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.37;
+//License-SPDX-Identifier : MIT
 
-import "forge-std/Test.sol";
-import "../src/Counter.sol";
+pragma solidity^0.8.37;
 
-contract CounterTest is Test {
-    Counter counter;
-    address alice = makeAddr("alice");
 
-    function setUp() public {
-        counter = new Counter(); // le test est l'owner, number = 255
+import {Test} from "forge-std/Test.sol";
+import {Counter} from "../src/Counter.sol";
+
+
+contract test_Counter is Test {
+   Counter Test_Counter;
+
+    function setUp() public{
+         Test_Counter = new Counter();
     }
 
-    // require
-    function test_RevertWhen_DecrementAtZero() public {
-        counter.reset_counter();
-        vm.expectRevert(bytes("too small"));
-        counter.decrement_counter();
+    function test_increment () public  {
+        uint256 avant = Test_Counter.number();
+        Test_Counter.increment();
+        assertEq(Test_Counter.number(),avant + 1);
     }
 
-    // Erreur personnalisée AVEC valeur
-    function test_RevertWhen_IncrementAt255() public {
-        vm.expectRevert(abi.encodeWithSelector(Counter.TooLarge.selector, 255));
-        counter.increment();
+    function test_increment_revert_above_max () public  {
+    vm.store(address(Test_Counter), bytes32(uint256(0)), bytes32(type(uint256).max));
+    vm.expectRevert(Counter.CannotIncrementAboveMax.selector);
+    Test_Counter.increment();
+}
+
+    function test_decrement () public  {
+    Test_Counter.increment();
+    uint256 avant = Test_Counter.number();
+    Test_Counter.decrement();
+    assertEq(Test_Counter.number(),avant - 1);
+}
+
+    function test_decrement_revert_below_zero () public  {
+    vm.expectRevert(Counter.CannotDecrementBelowZero.selector);
+    Test_Counter.decrement();
+}
+
+    function test_reset () public  {
+    Test_Counter.increment();
+    Test_Counter.reset();
+    assertEq(Test_Counter.number(), 0);
     }
 
-    // Modifier + erreur personnalisée SANS valeur
-    function test_RevertWhen_NotOwnerResets() public {
-        vm.prank(alice); // le prochain appel vient d'alice
-        vm.expectRevert(Counter.NotOwner.selector);
-        counter.reset_counter();
-    }
+    function test_reset_revert_already_zero () public  {
+    vm.expectRevert("Already zero");
+    Test_Counter.reset();
+}
 
-    // L'owner, lui, peut reset
-    function test_OwnerCanReset() public {
-        counter.reset_counter();
-        assertEq(counter.number(), 0);
-    }
-
-    // Event
-    function test_EmitIncremented() public {
-        counter.reset_counter();
-
-        vm.expectEmit(false, false, false, true); // on vérifie les données
-        emit Counter.Incremented(1);              // event attendu
-
-        counter.increment();                      // appel réel
-    }
 }

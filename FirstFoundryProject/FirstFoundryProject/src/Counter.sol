@@ -1,50 +1,39 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.8.37;
+//License-SPDX-Identifier : MIT or  Apache-2.0
+pragma solidity^0.8.37;
 
-contract Counter {
-    uint256 public number;      // public : lisible par tous
-    address private owner;      // private : seulement ce contrat
+/*
+1/ create a constructor to initilaize
+2/deploy 
 
-    // Erreurs personnalisées
-    error TooLarge(uint256 value);
-    error NotOwner();
+*/
+contract Counter{
 
-    // Events
-    event Incremented(uint256 newValue);
-    event Reset(address by);
+   //custom error
+   error CannotDecrementBelowZero();
+   error CannotIncrementAboveMax();
 
-    // Modifier
-    modifier onlyOwner() {
-        if (msg.sender != owner) revert NotOwner();
-        _;
-    }
+   //variable
+   uint256 public number;
 
-    constructor() {
-        owner = msg.sender;
-        number = 255;
-    }
 
-    // external : appelée seulement de l'extérieur
-    function increment() external {
-        if (!_canIncrement()) revert TooLarge(number);
-        number++;
-        emit Incremented(number);
-    }
+   constructor(){
+   }
+                                                                                                                                                
+   function increment() public {
+      if (number == type(uint256).max) {
+         revert CannotIncrementAboveMax();
+      }
+      number++;
+ }
+    function decrement() public {
+      if (number == 0) {
+         revert CannotDecrementBelowZero();
+      }
+      number--;
+ }
+   function reset() public {
+      require(number > 0, "Already zero");
+      number = 0;
+ }
 
-    // Seul l'owner peut remettre à zéro
-    function reset_counter() external onlyOwner {
-        number = 0;
-        emit Reset(msg.sender);
-    }
-
-    // On garde un require ici pour comparer
-    function decrement_counter() public {
-        require(number > 0, "too small");
-        number--;
-    }
-
-    // internal : utilisable seulement dans le contrat
-    function _canIncrement() internal view returns (bool) {
-        return number < 255;
-    }
 }
