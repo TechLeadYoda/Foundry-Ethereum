@@ -18,17 +18,22 @@ contract Counter{
 
    constructor(){
    }
-                                                                                                                                                
-   function increment() public {
-      if (number == type(uint256).max) {
-         revert CannotIncrementAboveMax();
-      }
+
+   //modifier
+   modifier notAtMax() {
+      require(number < type(uint256).max, CannotIncrementAboveMax());
+      _;
+   }
+
+   modifier notZero() {
+      require(number > 0, CannotDecrementBelowZero());
+      _;
+   }
+
+   function increment() public notAtMax {
       number++;
  }
-    function decrement() public {
-      if (number == 0) {
-         revert CannotDecrementBelowZero();
-      }
+    function decrement() public notZero {
       number--;
  }
    function reset() public {
